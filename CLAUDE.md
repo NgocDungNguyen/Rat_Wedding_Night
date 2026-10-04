@@ -27,6 +27,18 @@ Handoff from a previous Claude (Cowork) session, so a new session can continue w
 | 2026-10-04 | Save: localStorage keys `lcc.settings.v1`, `lcc.save.v1`, `lcc.meta.v1`; one autosave slot + Continue      |
 | 2026-10-04 | Rules: build no gameplay, AI, levels or cut-scenes until Albert asks. Commit after each working step       |
 
+### Game shell (Phase 0B, done 2026-10-04)
+
+Run: `cd game && npm install && npm run dev` → http://localhost:5173 (Chrome/Edge). `predev` copies the used trailer sounds into `game/public/` (gitignored).
+
+| Where | What |
+| --- | --- |
+| `game/src/core/` | settings, save, i18n, input (pointer lock, rebinding), audio buses, screen stack (`state.js`) |
+| `game/src/ui/screens/` | one file per screen (story cards share `cards.js`; HUD + pause in `hud.js`) |
+| `game/src/data/` | `chapters.js` (6 chapters as data), `defaults.js` (settings, keys, quality presets) |
+| `game/src/game/` | `gameplay.js` (loop, modes hidden/attract/play), `player.js` (mouse-scale FP), `placeholderLevel.js` (trailer village) |
+| Debug | F7 fast move, F8 complete chapter, F9 game over; `window.__lcc` in the console; `input.debugForceLock()` because automation browsers refuse pointer lock |
+
 Still open: ending type, which twists are canon, final tribute items, studio name, final on-screen title (see `docs/GAME_PLAN.md` §11).
 
 ---
