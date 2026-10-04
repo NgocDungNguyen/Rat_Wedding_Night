@@ -6,6 +6,8 @@ const r = (p) => fileURLToPath(new URL(p, import.meta.url));
 // The trailer modules in ../web are imported read-only through @trailer.
 // three is pinned to this package's copy so the trailer files and the game share one instance.
 export default defineConfig({
+  // Relative asset paths so the build works under any sub-path (e.g. GitHub Pages /Rat_Wedding_Night/).
+  base: './',
   resolve: {
     alias: [
       { find: /^three$/, replacement: r('./node_modules/three/build/three.module.js') },

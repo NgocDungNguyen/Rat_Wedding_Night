@@ -7,7 +7,7 @@ export const SOUNDS = {
   click: 'sfx/click.ogg', thud: 'sfx/thud.ogg', bell: 'sfx/templebell.ogg', gong: 'sfx/gongbell.ogg',
   rooster: 'sfx/rooster.ogg', wind: 'sfx/wind.ogg', gecko: 'sfx/gecko.ogg', doghowl: 'sfx/doghowl.ogg',
   breath: 'sfx/breath2.ogg',
-  menuMusic: 'music/menu_placeholder.flac', // TODO: real menu theme (this is the trailer mix)
+  menuMusic: 'music-game/menu_placeholder.ogg', // TODO: real menu theme (this is the trailer mix)
   // Game sounds (Wikimedia Commons, see src/data/sfx-game-credits.json)
   catHiss: 'sfx-game/cat_hiss.ogg', catMeow: 'sfx-game/cat_meow.ogg', catPlead: 'sfx-game/cat_plead.ogg',
   catPurr: 'sfx-game/cat_purr.ogg', catGrowl: 'sfx-game/cat_growl.ogg', heartbeat: 'sfx-game/heartbeat.ogg',

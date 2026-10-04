@@ -1,0 +1,24 @@
+{
+  "name": "rat-wedding-night",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "timeline": "python gen_timeline.py",
+    "preview": "node render.mjs --preview",
+    "render": "node render.mjs",
+    "encode": "node render.mjs --encode-only",
+    "render4k": "node render.mjs --4k",
+    "render-all": "node render.mjs && node render.mjs --4k",
+    "encode4k": "node render.mjs --4k --encode-only"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@fontsource/be-vietnam-pro": "^5.3.0",
+    "@fontsource/cormorant-garamond": "^5.3.0",
+    "playwright-core": "^1.63.0",
+    "three": "^0.169.0"
+  },
+  "type": "module"
+}

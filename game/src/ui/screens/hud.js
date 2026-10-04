@@ -76,7 +76,7 @@ export function hud({ id }) {
         h('div', { class: 'crosshair' }), el.prompt, el.eye, el.obj, el.toasts,
         h('div', { class: 'meters' }, el.status, el.hpBox, el.stBox),
         el.hint, el.subs,
-        h('div', { class: 'debug' }, t('hud.debug'), ' ', el.fast),
+        import.meta.env.DEV ? h('div', { class: 'debug' }, t('hud.debug'), ' ', el.fast) : null,
         el.note, el.veil);
       requestAnimationFrame(showObjective);
       return root;
@@ -106,9 +106,9 @@ export function hud({ id }) {
     exit() { offs.forEach(f => f()); cancelAnimationFrame(raf); },
     key(e) {
       if (note && (e.code === settings.get('keys').interact || e.code === 'Space' || e.code === 'Enter')) { e.preventDefault(); closeNote(); return true; }
-      if (e.code === 'F8') { e.preventDefault(); game.debug.api.complete(); return true; }
-      if (e.code === 'F9') { e.preventDefault(); game.debug.player.damage(999); return true; }
-      if (e.code === 'F7') { e.preventDefault(); el.fast.textContent = game.toggleFast() ? '· FAST' : ''; return true; }
+      if (import.meta.env.DEV && e.code === 'F8') { e.preventDefault(); game.debug.api.complete(); return true; }
+      if (import.meta.env.DEV && e.code === 'F9') { e.preventDefault(); game.debug.player.damage(999); return true; }
+      if (import.meta.env.DEV && e.code === 'F7') { e.preventDefault(); el.fast.textContent = game.toggleFast() ? '· FAST' : ''; return true; }
       if (e.code === 'Escape') { closeNote(); openPause(); return true; }
       return true; // gameplay keys never drive menu navigation
     },

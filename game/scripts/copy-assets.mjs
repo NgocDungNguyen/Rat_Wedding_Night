@@ -15,8 +15,6 @@ const files = [
   ['sfx/gecko.ogg', 'sfx/gecko.ogg'],
   ['sfx/doghowl.ogg', 'sfx/doghowl.ogg'],
   ['sfx/breath2.ogg', 'sfx/breath2.ogg'],
-  // TODO: placeholder menu music until a real menu theme exists
-  ['audio/trailer_mix.flac', 'music/menu_placeholder.flac'],
 ];
 
 let copied = 0;
