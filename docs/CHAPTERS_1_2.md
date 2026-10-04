@@ -9,12 +9,15 @@ Placeholder names (TODO confirm): player **Tý** (servant) · bride **cô Út** 
 | System | Rule |
 |---|---|
 | Scale | Mouse eye 7 cm, radius 3 cm. Walk 0.55 m/s, sprint 1.4, crouch 0.25, carrying 0.35 (no sprint) |
-| Collision | Boxes (can rotate) + ramps. Low gaps (door bottoms) need crouch. Falls are allowed and make noise |
+| Physics | Rapier: houses, walls, furniture are solid; cups, plates, fruit, pebbles, sandals are dynamic (push them, they fall, impacts make noise). Low gaps (door bottoms) need crouch |
+| Jump / climb | Space = ~12 cm hop. Hold Space facing a wall or object = climb straight up, pull over the top. Glazed jars are too slippery |
+| Stamina | Sprint 20/s, climb 15/s, jump 12. Empty = exhausted (no sprint/climb) until 30 |
+| Health | 100. Cat swipe −34, falls above ~0.5 m hurt. Regen after 7 s out of danger; rice crumbs +30. 0 = retry from checkpoint |
 | Lantern (F) | Lights your way; cats see you twice as far |
 | Hiding | Crouch inside grass, straw, baskets or under carts = hidden unless a cat is very close |
 | Noise | Sprint > walk > crouch. Carrying, landing from a fall and knocking things are loud |
 | Cat scouts | Patrol → Suspicious (turns, meows) → Chase (hiss, chase music) → Search → Patrol. Sleeping cats wake on noise. Cats can't fit through gaps a mouse can |
-| Caught | Game over → Retry from the last checkpoint |
+| Caught | Cats swipe (damage) instead of instant capture. Health 0 → Retry from the last checkpoint |
 | Notes | Optional lore pages (E to read), 2 per chapter: what happened to the human village |
 | Cut-scenes | Paper-and-ink panels, click/Space to advance, Esc to skip |
 
