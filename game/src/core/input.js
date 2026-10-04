@@ -43,6 +43,8 @@ export const input = {
     } catch { /* lock is retried on the next click */ }
   },
   unlock() { if (document.pointerLockElement) document.exitPointerLock(); },
+  /** Test hook (automation browsers refuse pointer lock): act as if locked. */
+  debugForceLock(on = true) { locked = on; em.emit('lock', locked); },
   /** @param {string} action from ACTIONS */
   isDown: (action) => down.has(settings.get('keys')[action]),
   isCodeDown: (code) => down.has(code),
