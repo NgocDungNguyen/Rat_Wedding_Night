@@ -119,14 +119,16 @@ function buildSession(id, checkpointId) {
   scene.add(R.camera);
   S.cats = (level.cats ?? []).map(cfg => createCat(scene, world, cfg));
   world.onImpact((p, loud, prop) => {
-    const r = Math.min(5, Math.max(.6, loud / 6));
-    audio.playAt('thud', p, R.camera, { volume: Math.min(1, loud / 30), rate: prop.sound === 'clack' ? 2.6 + Math.random() * .4 : 1.5, maxDist: 8 });
-    api.noise(p, r, loud > 20);
+    // Hard things (ceramic, stone) carry further than soft ones (fruit, sandals).
+    const hard = prop.sound === 'clack', r = Math.min(6, Math.max(.6, loud / (hard ? 3 : 6)));
+    audio.playAt('thud', p, R.camera, { volume: Math.min(1, loud / 25), rate: hard ? 2.6 + Math.random() * .4 : 1.5, maxDist: 9 });
+    api.noise(p, r, hard && loud > 12);
   });
   const at = (checkpointId && level.checkpoints?.[checkpointId]) || level.spawn;
   player.spawn(world, at.pos.clone(), at.yaw);
   player.setLantern(!!S.flags.lantern, false);
   player.setCarry(null);
+  world.step(1 / 60); // build the query structures so rays work before the first frame
   level.start?.(checkpointId ?? null);
   audio.ambience(level.ambience ?? { wind: .4 });
   audio.music(S.music);
@@ -257,5 +259,7 @@ export const game = {
   flushPlaytime() { save.addPlaytime(Math.round(playtime)); playtime = 0; },
   get canvas() { return R.renderer.domElement; },
   /** Debug/test access. */
-  get debug() { return { player, S, api, camera: R.camera }; },
+  get debug() { return { player, S, api, camera: R.camera, R }; },
+  /** Test hook: advance the simulation n fixed steps (independent of the browser frame rate). */
+  debugStep(n = 1, dt = 1 / 60) { for (let i = 0; i < n && S && !S.over; i++) { t += dt; updatePlay(dt); } },
 };

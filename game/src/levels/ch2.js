@@ -153,7 +153,7 @@ export default {
       chicken: T('Lấy con gà luộc trên bàn thờ', 'Take the boiled chicken from the altar'),
       back: T('Mang gà về lỗ cống', 'Carry the chicken back to the drain'),
     };
-    const carried = () => { const m = chickenMesh(); m.scale.setScalar(.38); m.rotation.set(0, Math.PI, 0); return m; };
+    const carried = () => { const m = chickenMesh(); m.scale.setScalar(.24); m.rotation.set(0, Math.PI, 0); return m; };
 
     function takeChicken(scripted = false) {
       api.flags.chicken = true;
@@ -163,8 +163,9 @@ export default {
       step = 3; api.objective(OBJ.back);
       if (!scripted) {
         // The plate tips and slides off the altar: a real fall, and the clatter wakes the house cat.
-        plate.body.applyImpulse({ x: -.05, y: .12, z: .75 }, true);
-        plate.body.applyTorqueImpulse({ x: .004, y: 0, z: .002 }, true);
+        // Push it backwards (away from the mouse): it skids off the back edge and smashes behind the altar.
+        plate.body.applyImpulse({ x: .08, y: .1, z: -1.3 }, true);
+        plate.body.applyTorqueImpulse({ x: -.002, y: .001, z: .001 }, true);
         api.noise(v(.3, ALTAR_TOP, -13.5), 3, false);
         api.hint(T('Gà nặng: không chạy, không nhảy, không leo được. Nhảy từ trên cao xuống sẽ mất máu.', 'The chicken is heavy: no running, jumping or climbing. Dropping from high up hurts.'), 9000);
         setTimeout(() => api.checkpoint('chicken'), 50);

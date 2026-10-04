@@ -35,6 +35,7 @@ export function createWorld() {
   /** @type {any[]} */ const dynamics = [];
   /** @type {((p:THREE.Vector3, loud:number, prop:any)=>void)[]} */ const impactFns = [];
   const q = new THREE.Quaternion(), e = new THREE.Euler();
+  let simTime = 0; // seconds of simulated time (impact cooldowns)
 
   const fixedBody = (x, y, z, rx = 0, ry = 0, rz = 0, order = 'XYZ') => {
     q.setFromEuler(e.set(rx, ry, rz, order));
@@ -96,7 +97,7 @@ export function createWorld() {
       const c = pw.createCollider(desc.setMass(o.mass).setFriction(o.friction ?? .6).setRestitution(o.restitution ?? .15)
         .setCollisionGroups(GROUPS.dyn).setActiveEvents(RAPIER.ActiveEvents.CONTACT_FORCE_EVENTS)
         .setContactForceEventThreshold(o.mass * 9.81 * 4), body);
-      const prop = { id: o.id, body, collider: c, mesh: o.mesh, mass: o.mass, sound: o.sound ?? 'clack', lastHit: 0, enabled: true };
+      const prop = { id: o.id, body, collider: c, mesh: o.mesh, mass: o.mass, sound: o.sound ?? 'clack', lastHit: -1e9, enabled: true };
       meta.set(c.handle, { climb: false, sight: false, dynamic: prop });
       dynamics.push(prop);
       return prop;
@@ -165,6 +166,11 @@ export function createWorld() {
           hh = nh; collider.setHalfHeight(hh); body.setTranslation(center(), true);
         },
         teleport(p) { feet.copy(p); body.setTranslation(center(), true); },
+        /** Ground snapping + auto-step on/off (off while climbing). */
+        setGroundAssist(on) {
+          if (on) { ctrl.enableAutostep(o.step, r * .5, false); ctrl.enableSnapToGround(o.step); }
+          else { ctrl.disableAutostep(); ctrl.disableSnapToGround(); }
+        },
         dispose() { pw.removeCharacterController(ctrl); pw.removeRigidBody(body); },
       };
     },
@@ -195,7 +201,7 @@ export function createWorld() {
     step(dt) {
       pw.timestep = Math.min(1 / 30, Math.max(1 / 240, dt));
       pw.step(events);
-      const now = performance.now();
+      simTime += pw.timestep; const now = simTime * 1000;
       events.drainContactForceEvents((ev) => {
         for (const h of [ev.collider1(), ev.collider2()]) {
           const p = meta.get(h)?.dynamic; if (!p || now - p.lastHit < 180) continue;

@@ -14,7 +14,7 @@ Handoff from a previous Claude (Cowork) session, so a new session can continue w
 | ----------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
 | Cinematic POV trailer "LÀNG" (≈101 s, 1080p, Vietnamese text + English subtitles) | **Done.** Albert is happy with it ("pretty good")               |
 | This repo: trailer source + local render pipeline                                   | Delivered. Albert edits the text and re-renders locally               |
-| Turning it into a real game (Slenderman-style first-person horror)                  | **Phase 0** (plan + shell). Plan in `docs/GAME_PLAN.md`; shell in `game/` |
+| Turning it into a real game (Slenderman-style first-person horror)                  | **Chapters 1–2 playable** (v0.1). Plan `docs/GAME_PLAN.md`, Ch1–2 design `docs/CHAPTERS_1_2.md`, code in `game/` |
 
 ## Game decisions log
 
@@ -26,7 +26,9 @@ Handoff from a previous Claude (Cowork) session, so a new session can continue w
 | 2026-10-04 | Language picker on first boot (vi/en); Quit = "Hẹn gặp lại" farewell screen (web can't close the tab)    |
 | 2026-10-04 | Save: localStorage keys `lcc.settings.v1`, `lcc.save.v1`, `lcc.meta.v1`; one autosave slot + Continue      |
 | 2026-10-04 | Ch1+Ch2 build: Ch2 tribute = boiled chicken from the Tết altar; Ch1 = tutorial + one cat scout; new area per chapter; cut-scenes = text + Đông Hồ-style stills. Design: `docs/CHAPTERS_1_2.md` |
-| 2026-10-04 | Rules: build no gameplay, AI, levels or cut-scenes until Albert asks. Commit after each working step       |
+| 2026-10-04 | **Albert's rules for this and all further levels:** Space = jump; hold Space against a wall/object = climb it vertically; all houses/walls/furniture are real physics colliders, small props are dynamic (push, fall, noise); **stamina** (sprint/climb/jump) and **health** (cat swipes, falls; regen + food) |
+| 2026-10-04 | Physics engine: **Rapier** (`@dimforge/rapier3d-compat`), `lengthUnit = 0.1` for mouse scale |
+| 2026-10-04 | Rules: build only what Albert asks for. Commit after each working step       |
 
 ### Game shell (Phase 0B, done 2026-10-04)
 
@@ -37,8 +39,21 @@ Run: `cd game && npm install && npm run dev` → http://localhost:5173 (Chrome/E
 | `game/src/core/` | settings, save, i18n, input (pointer lock, rebinding), audio buses, screen stack (`state.js`) |
 | `game/src/ui/screens/` | one file per screen (story cards share `cards.js`; HUD + pause in `hud.js`) |
 | `game/src/data/` | `chapters.js` (6 chapters as data), `defaults.js` (settings, keys, quality presets) |
-| `game/src/game/` | `gameplay.js` (loop, modes hidden/attract/play), `player.js` (mouse-scale FP), `placeholderLevel.js` (trailer village) |
-| Debug | F7 fast move, F8 complete chapter, F9 game over; `window.__lcc` in the console; `input.debugForceLock()` because automation browsers refuse pointer lock |
+| `game/src/game/` | `gameplay.js` (loop, level sessions, script API, stealth, HUD values), `player.js` (physics mouse: jump/climb/stamina/health/lantern/carry), `cat.js` (cat model + AI), `world.js` (Rapier world, zones, rays), `placeholderLevel.js` (menu village) |
+| `game/src/levels/` | `kit.js` (real-scale materials + prop builders), `ch1.js`, `ch2.js`, `index.js` (registry; Ch3–6 use a placeholder) |
+| `game/src/art/dongho.js`, `data/cutscenes.js` | Đông Hồ-style cut-scene painter and the Ch1/Ch2 panels (voice slots TODO) |
+| Debug | F7 fast move, F8 complete chapter, F9 die; `window.__lcc` in the console (`await __lcc.quick(2, 'chicken')` jumps to a chapter/checkpoint; `__lcc.game.debugStep(n)` advances physics without the browser frame rate); `input.debugForceLock()` because automation browsers refuse pointer lock |
+
+### Building new levels (pattern)
+
+| Step | How |
+|---|---|
+| Geometry | `k.box/cyl/ramp/wall/gate/hedge/table/chair…` (mesh + static collider). Real metres; mouse eye 7 cm. `climb:false` for slippery things (glazed jars) |
+| Small props | `k.dyn(...)` / `k.cup/orange/pebble/sandal` — dynamic; impacts become noise for cats |
+| Zones | `k.hide`, `k.shadow`, `k.safe`, light zones via `k.light(..., zoneR)`; `k.bound` = invisible world edge |
+| Cats | `cats: [{id, pos, waypoints, area, sleep?}]` in the level's return value |
+| Script | `start(checkpointId)` + `update(dt, t)` using `api.objective/hint/note/checkpoint/complete/interact/noise` |
+| Register | add to `levels/index.js`, set `level`, `cutIn`, `cutOut` in `data/chapters.js` |
 
 Still open: ending type, which twists are canon, final tribute items, studio name, final on-screen title (see `docs/GAME_PLAN.md` §11).
 
@@ -170,7 +185,6 @@ npm run encode                           # rebuild MP4 from cached frames/
 
 ## 3. Next steps
 
-1. Confirm that Albert's local setup renders a preview.
-2. Get answers to the open decisions (ending, additions, engine).
-3. Write the full game design plan in short tables.
-4. Only then prototype (likely a vertical slice of chapter 1: mouse-scale village, one tribute item, Ông Mèo stalking).
+1. Albert playtests Ch1–Ch2 and gives feedback (difficulty, lighting, controls).
+2. Open decisions still pending (ending, canon twists, tribute items, studio name, title).
+3. Next chapters (3: fish in the flooded field) or Ông Mèo boss AI, when Albert asks.

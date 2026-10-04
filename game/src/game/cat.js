@@ -90,7 +90,7 @@ export function createCat(scene, world, cfg) {
     hear(p, r, loud = false) {
       const d = Math.hypot(p.x - pos.x, p.z - pos.z);
       if (d > r) return;
-      if (state === 'sleep') { wake += loud ? 2 : (1 - d / r) * .5; stim.copy(p); return; }
+      if (state === 'sleep') { wake += loud ? 2 : (1 - d / r) * 1.2; stim.copy(p); return; }
       if (state === 'chase') return;
       stim.copy(p);
       detect = Math.max(detect, loud ? .7 : .4 + .3 * (1 - d / r));

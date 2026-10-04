@@ -17,7 +17,7 @@ export const HEALTH = { max: 100, regen: 5, regenDelay: 7, fallSafe: 3.2, fallDm
 export function createPlayer(camera) {
   const vel = new THREE.Vector3();
   let yaw = 0, pitch = 0, eye = EYE.stand, bobT = 0, vy = 0, grounded = true, stepAcc = 0;
-  let prevJump = false, staminaIdle = 0, sinceHurt = 99, invuln = 0, breathT = 0;
+  let assistOff = false, prevJump = false, staminaIdle = 0, sinceHurt = 99, invuln = 0, breathT = 0;
   /** @type {ReturnType<import('./world.js').createWorld['prototype']['createCharacter']>|any} */ let ch = null;
 
   // Hand lantern: small paper lantern bottom-right of view + warm light.
@@ -47,7 +47,7 @@ export function createPlayer(camera) {
     /** Attach to a level's physics world at position/yaw. */
     spawn(world, at, y) {
       ch?.dispose();
-      ch = world.createCharacter({ kind: 'player', radius: RADIUS, height: HEIGHT.stand, pos: at, step: .02, mass: .03 });
+      ch = world.createCharacter({ kind: 'player', radius: RADIUS, height: HEIGHT.stand, pos: at, step: .02, mass: .03 }); assistOff = false;
       p.pos = ch.feet;
       vel.set(0, 0, 0); vy = 0; yaw = y; pitch = 0; eye = EYE.stand; bobT = 0; grounded = true;
       Object.assign(p, { crouched: false, climbing: false, noise: 0, impulse: 0, stamina: STAMINA.max, exhausted: false, hp: HEALTH.max, dead: false });
@@ -63,7 +63,7 @@ export function createPlayer(camera) {
     setCarry(id, mesh = null) {
       if (carryMesh) held.remove(carryMesh);
       p.carry = id; carryMesh = mesh;
-      if (mesh) { mesh.position.set(0, -.05, -.09); mesh.rotation.set(.3, .4, 0); held.add(mesh); }
+      if (mesh) { mesh.position.set(.04, -.06, -.12); mesh.rotation.set(.35, .5, 0); held.add(mesh); }
     },
     /** Take damage; `from` pushes the mouse away. Returns true if it killed. */
     damage(n, from = null) {
@@ -107,6 +107,7 @@ export function createPlayer(camera) {
       };
       const canClimb = !p.carry && !p.exhausted && p.stamina > 2;
       if (!p.climbing && jumpHeld && canClimb && f >= 0 && wallAhead(pos.y + h * .5)) { p.climbing = true; vy = 0; vel.set(0, 0, 0); }
+      if (assistOff !== p.climbing) { ch.setGroundAssist(!p.climbing); assistOff = p.climbing; }
       let usedStamina = false;
 
       if (p.climbing) {
@@ -114,7 +115,7 @@ export function createPlayer(camera) {
         if (!jumpHeld || f < 0 || !canClimb) { p.climbing = false; p.climbEnd = !jumpHeld ? 'released' : f < 0 ? 'back' : 'stamina'; vel.set(-fx * .3, 0, -fz * .3); }
         else if (!chest && feet) { // reached the top edge: pull up and over
           ch.move(0, .035, 0); ch.move(fx * .05, 0, fz * .05); p.climbing = false; p.climbEnd = 'top'; vy = 0;
-        } else if (!chest && !feet) { p.climbing = false; p.climbEnd = 'lost-wall'; }
+        } else if (!chest && !feet) { p.climbing = false; p.climbEnd = `lost-wall@${pos.y.toFixed(3)},${pos.z.toFixed(3)}`; }
         else {
           const rx = Math.cos(yaw), rz = -Math.sin(yaw);
           const r = ch.move(rx * s * SPEED.climbSide * dt + fx * .002, SPEED.climb * dt, rz * s * SPEED.climbSide * dt + fz * .002);
