@@ -1,0 +1,23 @@
+{
+  "name": "lang-chuot-game",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Đám cưới Làng Chuột / Rat Village Wedding — desktop web game",
+  "type": "module",
+  "scripts": {
+    "assets": "node scripts/copy-assets.mjs",
+    "predev": "node scripts/copy-assets.mjs",
+    "dev": "vite",
+    "prebuild": "node scripts/copy-assets.mjs",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@fontsource/be-vietnam-pro": "^5.3.0",
+    "@fontsource/cormorant-garamond": "^5.3.0",
+    "three": "0.169.0"
+  },
+  "devDependencies": {
+    "vite": "^8.0.0"
+  }
+}
