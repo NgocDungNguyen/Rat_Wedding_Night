@@ -1,15 +1,8 @@
 node_modules/
-frames/
-frames_preview/
-out/
-4k/
-audio/sfx_wav/
-audio/stems/*.wav
+dist/
 *.log
-
-*.mp4
-LANG_MA_Player.html
 .vscode/
-
-# test artefacts
 .playwright-mcp/
+
+# Trailer project: kept on this PC only (render pipeline, sources, renders)
+trailer/

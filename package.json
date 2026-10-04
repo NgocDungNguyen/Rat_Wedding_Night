@@ -1,24 +1,21 @@
 {
-  "name": "rat-wedding-night",
-  "version": "1.0.0",
-  "description": "",
+  "name": "lang-chuot-game",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Đám cưới Làng Chuột / Rat Village Wedding — desktop web game",
+  "type": "module",
   "scripts": {
-    "timeline": "python gen_timeline.py",
-    "preview": "node render.mjs --preview",
-    "render": "node render.mjs",
-    "encode": "node render.mjs --encode-only",
-    "render4k": "node render.mjs --4k",
-    "render-all": "node render.mjs && node render.mjs --4k",
-    "encode4k": "node render.mjs --4k --encode-only"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
+    "@dimforge/rapier3d-compat": "^0.21.0",
     "@fontsource/be-vietnam-pro": "^5.3.0",
     "@fontsource/cormorant-garamond": "^5.3.0",
-    "playwright-core": "^1.63.0",
-    "three": "^0.169.0"
+    "three": "0.169.0"
   },
-  "type": "module"
+  "devDependencies": {
+    "vite": "^8.0.0"
+  }
 }

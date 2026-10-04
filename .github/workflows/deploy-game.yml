@@ -1,4 +1,4 @@
-# Builds the web game in game/ and publishes it to GitHub Pages on every push to main.
+# Builds the web game and publishes it to GitHub Pages on every push to main.
 # One-time setup: repo Settings → Pages → Source: "GitHub Actions".
 name: Deploy game to GitHub Pages
 
@@ -19,21 +19,17 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: game
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: game/package-lock.json
       - run: npm ci
-      - run: npm run build          # prebuild copies the trailer sounds from ../sfx
+      - run: npm run build
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: game/dist
+          path: dist
 
   deploy:
     needs: build

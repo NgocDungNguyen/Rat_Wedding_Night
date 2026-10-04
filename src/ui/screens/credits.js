@@ -1,16 +1,14 @@
-// Credits: team (TODO), inspiration, tech, fonts and the Wikimedia Commons sound credits from the trailer.
+// Credits: team (TODO), inspiration, tech, fonts and the Wikimedia Commons sound credits.
 import { h, button } from '../components.js';
 import { t } from '../../core/i18n.js';
 import { screens } from '../../core/state.js';
-import sfxCredits from '@sfx/credits.json';
+import sfxCredits from '../../data/sfx-credits.json';
 import gameSfxCredits from '../../data/sfx-game-credits.json';
 
-// Only the sounds the game actually ships (see scripts/copy-assets.mjs).
-const USED = ['click', 'thud', 'templebell', 'gongbell', 'rooster', 'wind', 'gecko', 'doghowl', 'breath2'];
 const decode = (s) => String(s ?? '').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').replace(/&quot;/g, '"');
 
 export default function credits() {
-  const sounds = [...sfxCredits.filter(c => USED.includes(c.name)), ...gameSfxCredits];
+  const sounds = [...sfxCredits, ...gameSfxCredits];
   return {
     render: () => h('div', { class: 'backdrop' },
       h('div', { class: 'panel credits' },

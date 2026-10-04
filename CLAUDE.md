@@ -14,14 +14,14 @@ Handoff from a previous Claude (Cowork) session, so a new session can continue w
 | ----------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
 | Cinematic POV trailer "LÀNG" (≈101 s, 1080p, Vietnamese text + English subtitles) | **Done.** Albert is happy with it ("pretty good")               |
 | This repo: trailer source + local render pipeline                                   | Delivered. Albert edits the text and re-renders locally               |
-| Turning it into a real game (Slenderman-style first-person horror)                  | **Chapters 1–2 playable** (v0.1). Plan `docs/GAME_PLAN.md`, Ch1–2 design `docs/CHAPTERS_1_2.md`, code in `game/` |
+| Turning it into a real game (Slenderman-style first-person horror)                  | **Chapters 1–2 playable** (v0.1). Plan `docs/GAME_PLAN.md`, Ch1–2 design `docs/CHAPTERS_1_2.md`, code at the repo root (`src/`, `public/`). Live: https://ngocdungnguyen.github.io/Rat_Wedding_Night/ |
 
 ## Game decisions log
 
 | Date       | Decision                                                                                                   |
 | ---------- | ---------------------------------------------------------------------------------------------------------- |
 | 2026-10-04 | Engine: **web**, desktop only (Chrome/Edge, keyboard + mouse). three.js 0.169 + Vite, plain JS + JSDoc |
-| 2026-10-04 | Game lives in `game/` (own `package.json`). Trailer files (`web/`, `audio/`, `sfx/`) are **read-only**; the game imports `web/*.js` through the Vite alias `@trailer` |
+| 2026-10-05 | **Repo = the game only** (at the root). The trailer lives in `trailer/` on Albert's PC only (gitignored, not on GitHub). The game uses its own copies of `lib.js`, `world.js`, `creature.js` in `src/trailer/` (alias `@trailer`) and of the 9 sounds it needs in `public/sfx/`. Deploy: GitHub Actions → GitHub Pages on every push to `main` |
 | 2026-10-04 | Placeholder gameplay level = trailer village (`buildWorld()`) at mouse scale                               |
 | 2026-10-04 | Language picker on first boot (vi/en); Quit = "Hẹn gặp lại" farewell screen (web can't close the tab)    |
 | 2026-10-04 | Save: localStorage keys `lcc.settings.v1`, `lcc.save.v1`, `lcc.meta.v1`; one autosave slot + Continue      |
@@ -32,16 +32,16 @@ Handoff from a previous Claude (Cowork) session, so a new session can continue w
 
 ### Game shell (Phase 0B, done 2026-10-04)
 
-Run: `cd game && npm install && npm run dev` → http://localhost:5173 (Chrome/Edge). `predev` copies the used trailer sounds into `game/public/` (gitignored).
+Run: `npm install && npm run dev` (repo root) → http://localhost:5173 (Chrome/Edge). Build: `npm run build` → `dist/`.
 
 | Where | What |
 | --- | --- |
-| `game/src/core/` | settings, save, i18n, input (pointer lock, rebinding), audio buses, screen stack (`state.js`) |
-| `game/src/ui/screens/` | one file per screen (story cards share `cards.js`; HUD + pause in `hud.js`) |
-| `game/src/data/` | `chapters.js` (6 chapters as data), `defaults.js` (settings, keys, quality presets) |
-| `game/src/game/` | `gameplay.js` (loop, level sessions, script API, stealth, HUD values), `player.js` (physics mouse: jump/climb/stamina/health/lantern/carry), `cat.js` (cat model + AI), `world.js` (Rapier world, zones, rays), `placeholderLevel.js` (menu village) |
-| `game/src/levels/` | `kit.js` (real-scale materials + prop builders), `ch1.js`, `ch2.js`, `index.js` (registry; Ch3–6 use a placeholder) |
-| `game/src/art/dongho.js`, `data/cutscenes.js` | Đông Hồ-style cut-scene painter and the Ch1/Ch2 panels (voice slots TODO) |
+| `src/core/` | settings, save, i18n, input (pointer lock, rebinding), audio buses, screen stack (`state.js`) |
+| `src/ui/screens/` | one file per screen (story cards share `cards.js`; HUD + pause in `hud.js`) |
+| `src/data/` | `chapters.js` (6 chapters as data), `defaults.js` (settings, keys, quality presets) |
+| `src/game/` | `gameplay.js` (loop, level sessions, script API, stealth, HUD values), `player.js` (physics mouse: jump/climb/stamina/health/lantern/carry), `cat.js` (cat model + AI), `world.js` (Rapier world, zones, rays), `placeholderLevel.js` (menu village) |
+| `src/levels/` | `kit.js` (real-scale materials + prop builders), `ch1.js`, `ch2.js`, `index.js` (registry; Ch3–6 use a placeholder) |
+| `src/art/dongho.js`, `data/cutscenes.js` | Đông Hồ-style cut-scene painter and the Ch1/Ch2 panels (voice slots TODO) |
 | Debug | F7 fast move, F8 complete chapter, F9 die; `window.__lcc` in the console (`await __lcc.quick(2, 'chicken')` jumps to a chapter/checkpoint; `__lcc.game.debugStep(n)` advances physics without the browser frame rate); `input.debugForceLock()` because automation browsers refuse pointer lock |
 
 ### Building new levels (pattern)
@@ -115,6 +115,8 @@ Still open: ending type, which twists are canon, final tribute items, studio nam
 ---
 
 ## 2. Trailer: how it works
+
+**Location: `trailer/` (local only, not in git).** All paths below are relative to `trailer/`; run its commands from inside that folder.
 
 The trailer is a procedural three.js scene (r169), rendered frame by frame in Chrome by Playwright, then encoded by ffmpeg with a pre-mixed audio track.
 
