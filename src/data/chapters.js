@@ -1,5 +1,5 @@
 // The six chapters, one per night of Tết leading to the wedding (Mùng 10).
-// Chapters 1–2 are built (src/levels/ch1.js, ch2.js). TODO: chapters 3–6 levels; texts are placeholders until the story is final.
+// Chapters 1–3 are built (src/levels/ch1–3.js). TODO: chapters 4–6 levels; texts are placeholders until the story is final.
 
 /**
  * @typedef {{vi:string, en:string}} Text
@@ -16,8 +16,8 @@ export const CHAPTERS = [
     objective: { vi: 'Lấy con gà luộc trên bàn thờ nhà họ Lý', en: 'Take the boiled chicken from the Lý family altar' },
     intro: { vi: 'Lễ vật đầu tiên.', en: 'The first tribute.' }, level: 'ch2', cutIn: 'ch2_intro', cutOut: 'ch2_outro', requires: 1 },
   { id: 3, night: { vi: 'Mùng 5', en: 'Night 5' }, title: { vi: 'Con cá', en: 'The Fish' },
-    objective: { vi: 'Lấy một con cá ở ruộng ngập', en: 'Take a fish from the flooded field' },
-    intro: { vi: 'Nước lạnh. Đồng ruộng im phăng phắc.', en: 'Cold water. Silent fields.' }, level: 'placeholder', requires: 2 },
+    objective: { vi: 'Lấy con cá trong lờ ở cuối mương', en: 'Take the fish from the trap at the end of the channel' },
+    intro: { vi: 'Nước lạnh. Đồng ruộng im phăng phắc.', en: 'Cold water. Silent fields.' }, level: 'ch3', cutIn: 'ch3_intro', cutOut: 'ch3_outro', requires: 2 },
   { id: 4, night: { vi: 'Mùng 7', en: 'Night 7' }, title: { vi: 'Trầu và rượu', en: 'Betel and Wine' },
     objective: { vi: 'Tìm trầu cau và rượu', en: 'Gather betel and wine' },
     intro: { vi: 'Có thứ gì đó đang săn ta.', en: 'Something is hunting me.' }, level: 'placeholder', requires: 3 },

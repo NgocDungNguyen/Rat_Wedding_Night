@@ -189,8 +189,9 @@ export function createCat(scene, world, cfg) {
         heading += wrap(want - heading) * Math.min(1, dt * (state === 'chase' ? 9 : 4));
         const step = Math.min(speed * dt, Math.hypot(gx - pos.x, gz - pos.z));
         dxm = Math.sin(heading) * step; dzm = Math.cos(heading) * step;
-        // Cats never step into safe zones (burrows, drains, shrine).
-        if (world.inZone(pos.x + dxm * 4, 0, pos.z + dzm * 4, 'safe')) { dxm = dzm = 0; stuckT += dt; }
+        // Cats never step into safe zones (burrows, drains, shrine) or water.
+        const lx = pos.x + dxm * 4 + Math.sin(heading) * R, lz = pos.z + dzm * 4 + Math.cos(heading) * R;
+        if (world.inZone(lx, 0, lz, 'safe') || world.inZone(lx, pos.y - .2, lz, 'water')) { dxm = dzm = 0; stuckT += dt; }
       } else if (faceTo) heading += wrap(Math.atan2(faceTo.x - pos.x, faceTo.z - pos.z) - heading) * Math.min(1, dt * 3);
       vy -= 9.8 * dt;
       const ox = pos.x, oz = pos.z, want2 = Math.hypot(dxm, dzm);

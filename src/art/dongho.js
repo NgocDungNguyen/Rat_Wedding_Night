@@ -173,11 +173,69 @@ export function chicken(ctx, x, y, s = 1, thread = false) {
   ctx.restore();
 }
 
-export function fish(ctx, x, y, s = 1) {
+export function fish(ctx, x, y, s = 1, yellowEye = false) {
   ctx.save(); ctx.translate(x, y); ctx.scale(s, s);
   shape(ctx, '#b8c8c8', () => { ctx.moveTo(-90, 0); ctx.quadraticCurveTo(0, -60, 90, 0); ctx.quadraticCurveTo(0, 60, -90, 0); });
   shape(ctx, '#b8c8c8', () => { ctx.moveTo(-80, 0); ctx.lineTo(-130, -36); ctx.lineTo(-130, 36); ctx.closePath(); });
-  ctx.fillStyle = C.ink; ctx.beginPath(); ell(ctx, 56, -6, 6, 6); ctx.fill(); ctx.restore();
+  ctx.strokeStyle = C.ink; ctx.lineWidth = 2; for (let i = 0; i < 5; i++) { ctx.beginPath(); ctx.arc(-30 + i * 18, 0, 14, -1, 1); ctx.stroke(); }
+  if (yellowEye) { ctx.fillStyle = '#f0d040'; ctx.beginPath(); ell(ctx, 56, -6, 13, 13); ctx.fill(); ctx.lineWidth = 3; ctx.stroke(); ctx.fillStyle = C.ink; ctx.fillRect(53, -16, 6, 20); }
+  else { ctx.fillStyle = C.ink; ctx.beginPath(); ell(ctx, 56, -6, 6, 6); ctx.fill(); }
+  ctx.restore();
+}
+
+/** Flooded rice field: water bands, dykes, rice tufts. */
+export function paddies(ctx, horizon = 560) {
+  ctx.save();
+  ctx.fillStyle = '#3e5a66'; ctx.fillRect(40, horizon, W - 80, H - 40 - horizon);
+  ctx.strokeStyle = C.ink; ctx.lineWidth = 5; ctx.beginPath(); ctx.moveTo(40, horizon); ctx.lineTo(W - 40, horizon); ctx.stroke();
+  const dyke = (pts) => { ctx.beginPath(); ctx.moveTo(pts[0][0], pts[0][1]); pts.slice(1).forEach(p => ctx.lineTo(p[0], p[1])); ctx.lineWidth = 22; ctx.strokeStyle = C.ink; ctx.stroke(); ctx.lineWidth = 14; ctx.strokeStyle = '#6a7a3a'; ctx.stroke(); };
+  dyke([[800, horizon], [800, H - 40]]); dyke([[40, horizon + 120], [W - 40, horizon + 140]]); dyke([[1180, horizon], [1300, H - 40]]);
+  ctx.strokeStyle = 'rgba(240,240,220,.35)'; ctx.lineWidth = 2; for (let i = 0; i < 26; i++) { const y = horizon + 20 + i * 12; ctx.beginPath(); ctx.moveTo(60 + (i * 97) % 500, y); ctx.lineTo(160 + (i * 97) % 500, y); ctx.stroke(); }
+  ctx.strokeStyle = '#4b7436'; ctx.lineWidth = 3;
+  for (let i = 0; i < 90; i++) { const x = 80 + (i * 173) % (W - 160), y = horizon + 30 + (i * 59) % (H - horizon - 90); if (Math.abs(x - 800) < 30) continue;
+    for (const d of [-8, 0, 8]) { ctx.beginPath(); ctx.moveTo(x, y); ctx.quadraticCurveTo(x + d, y - 20, x + d * 2, y - 34); ctx.stroke(); } }
+  ctx.restore();
+}
+
+export function heron(ctx, x, y, s = 1, dir = 1, strike = false) {
+  ctx.save(); ctx.translate(x, y); ctx.scale(s * dir, s);
+  ctx.strokeStyle = C.ink; ctx.lineWidth = 6; for (const lx of [-14, 14]) { ctx.beginPath(); ctx.moveTo(lx, -10); ctx.lineTo(lx * .6, -200); ctx.stroke(); }
+  shape(ctx, C.white, () => { ctx.moveTo(-90, -230); ctx.quadraticCurveTo(-60, -300, 30, -290); ctx.quadraticCurveTo(80, -270, 60, -220); ctx.quadraticCurveTo(0, -190, -90, -230); });
+  if (strike) shape(ctx, C.white, () => { ctx.moveTo(40, -280); ctx.lineTo(220, -230); ctx.lineTo(214, -214); ctx.lineTo(30, -255); ctx.closePath(); });
+  else { ctx.lineWidth = 22; ctx.strokeStyle = C.ink; ctx.beginPath(); ctx.moveTo(40, -270); ctx.bezierCurveTo(110, -320, 0, -370, 70, -420); ctx.stroke(); ctx.lineWidth = 14; ctx.strokeStyle = C.white; ctx.stroke(); }
+  const hx = strike ? 220 : 70, hy = strike ? -226 : -425;
+  shape(ctx, C.white, () => { ell(ctx, hx, hy, 22, 16); }, 4);
+  shape(ctx, C.yellow, () => { ctx.moveTo(hx + 16, hy - 6); ctx.lineTo(hx + 110, hy + 4); ctx.lineTo(hx + 16, hy + 8); ctx.closePath(); }, 3);
+  ctx.fillStyle = C.ink; ctx.beginPath(); ell(ctx, hx + 6, hy - 4, 4, 4); ctx.fill();
+  ctx.restore();
+}
+
+/** Ma trơi: a green ghost fire. */
+export function wisp(ctx, x, y, r = 40) {
+  ctx.save(); const g = ctx.createRadialGradient(x, y, 0, x, y, r * 2.4);
+  g.addColorStop(0, 'rgba(230,255,240,1)'); g.addColorStop(.2, 'rgba(120,240,200,.8)'); g.addColorStop(1, 'rgba(60,200,170,0)');
+  ctx.fillStyle = g; ctx.beginPath(); ell(ctx, x, y, r * 2.4, r * 2.4); ctx.fill();
+  ctx.fillStyle = 'rgba(160,255,220,.9)'; ctx.beginPath(); ctx.moveTo(x - r * .5, y); ctx.quadraticCurveTo(x, y - r * 2, x + r * .5, y); ctx.quadraticCurveTo(x, y + r * .5, x - r * .5, y); ctx.fill();
+  ctx.restore();
+}
+
+/** Bamboo fish trap (lờ). */
+export function trap(ctx, x, y, s = 1) {
+  ctx.save(); ctx.translate(x, y); ctx.scale(s, s);
+  shape(ctx, '#b8a060', () => { ctx.moveTo(-160, -60); ctx.lineTo(140, -25); ctx.lineTo(140, 25); ctx.lineTo(-160, 60); ctx.closePath(); });
+  ctx.strokeStyle = C.ink; ctx.lineWidth = 3;
+  for (let i = 0; i < 9; i++) { const xx = -150 + i * 34, hh = 58 - i * 3.6; ctx.beginPath(); ctx.moveTo(xx, -hh); ctx.lineTo(xx, hh); ctx.stroke(); }
+  ctx.beginPath(); ctx.moveTo(-160, 0); ctx.lineTo(140, 0); ctx.stroke();
+  ctx.restore();
+}
+
+/** Betel quid folded like phoenix wings (trầu têm cánh phượng). */
+export function betel(ctx, x, y, s = 1) {
+  ctx.save(); ctx.translate(x, y); ctx.scale(s, s);
+  shape(ctx, '#4b7436', () => { ctx.moveTo(0, 60); ctx.quadraticCurveTo(-90, 0, -40, -70); ctx.quadraticCurveTo(0, -30, 0, 60); });
+  shape(ctx, '#5a8a40', () => { ctx.moveTo(0, 60); ctx.quadraticCurveTo(90, 0, 40, -70); ctx.quadraticCurveTo(0, -30, 0, 60); });
+  shape(ctx, C.red, () => { ctx.rect(-8, 30, 16, 40); }, 3);
+  ctx.restore();
 }
 
 export function ground(ctx, y, color = '#8a7a52') { ctx.save(); ctx.fillStyle = color; ctx.fillRect(40, y, W - 80, H - 40 - y); ctx.strokeStyle = C.ink; ctx.lineWidth = 5; ctx.beginPath(); ctx.moveTo(40, y); ctx.lineTo(W - 40, y); ctx.stroke(); ctx.restore(); }

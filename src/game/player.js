@@ -8,16 +8,17 @@ import { audio } from '../core/audio.js';
 export const RADIUS = .016;
 export const HEIGHT = { stand: .06, crouch: .034 };
 const EYE = { stand: .07, crouch: .04 };
-export const SPEED = { walk: .55, sprint: 1.4, crouch: .25, carry: .35, carryCrouch: .18, climb: .28, climbSide: .14 };
+export const SPEED = { walk: .55, sprint: 1.4, crouch: .25, carry: .35, carryCrouch: .18, climb: .28, climbSide: .14, swim: .32, swimFast: .55, swimCarry: .2 };
 const LOOK = .0022, GRAVITY = 9.8, JUMP_V = 1.55; // ≈ 12 cm hop
-export const STAMINA = { max: 100, sprint: 20, climb: 15, jump: 12, regen: 24, delay: .7, recover: 30 };
+export const STAMINA = { max: 100, sprint: 20, climb: 15, jump: 12, regen: 24, delay: .7, recover: 30, swim: 5, swimFast: 18 };
+export const WATER = { float: .045, drown: 9 }; // feet float this far below the surface; drowning health/s
 export const HEALTH = { max: 100, regen: 5, regenDelay: 7, fallSafe: 3.2, fallDmg: 26 };
 
 /** @param {THREE.PerspectiveCamera} camera */
 export function createPlayer(camera) {
   const vel = new THREE.Vector3();
   let yaw = 0, pitch = 0, eye = EYE.stand, bobT = 0, vy = 0, grounded = true, stepAcc = 0;
-  let assistOff = false, prevJump = false, staminaIdle = 0, sinceHurt = 99, invuln = 0, breathT = 0;
+  let jolt = 0, assistOff = false, prevJump = false, staminaIdle = 0, sinceHurt = 99, invuln = 0, breathT = 0;
   /** @type {ReturnType<import('./world.js').createWorld['prototype']['createCharacter']>|any} */ let ch = null;
 
   // Hand lantern: small paper lantern bottom-right of view + warm light.
@@ -36,7 +37,7 @@ export function createPlayer(camera) {
   const p = {
     /** Feet position (shared with the character controller). */
     pos: new THREE.Vector3(),
-    climbEnd: '', crouched: false, sprinting: false, climbing: false, grounded: true, moving: 0, speed: 0,
+    climbEnd: '', crouched: false, sprinting: false, climbing: false, swimming: false, drowning: false, grounded: true, moving: 0, speed: 0,
     hasLantern: false, lanternOn: false,
     carry: /** @type {string|null} */ (null),
     stamina: STAMINA.max, exhausted: false,
@@ -50,7 +51,7 @@ export function createPlayer(camera) {
       ch = world.createCharacter({ kind: 'player', radius: RADIUS, height: HEIGHT.stand, pos: at, step: .02, mass: .03 }); assistOff = false;
       p.pos = ch.feet;
       vel.set(0, 0, 0); vy = 0; yaw = y; pitch = 0; eye = EYE.stand; bobT = 0; grounded = true;
-      Object.assign(p, { crouched: false, climbing: false, noise: 0, impulse: 0, stamina: STAMINA.max, exhausted: false, hp: HEALTH.max, dead: false });
+      Object.assign(p, { crouched: false, climbing: false, swimming: false, drowning: false, noise: 0, impulse: 0, stamina: STAMINA.max, exhausted: false, hp: HEALTH.max, dead: false });
       sinceHurt = 99; invuln = 0;
       input.consumeMouse(); p.place(0, false);
     },
@@ -74,12 +75,14 @@ export function createPlayer(camera) {
       return p.dead;
     },
     heal(n) { p.hp = Math.min(HEALTH.max, p.hp + n); },
+    /** Short camera shake (e.g. the carried fish flopping). */
+    jolt(t = .25) { jolt = Math.max(jolt, t); },
     get hurtRecently() { return sinceHurt < .5; },
 
     /**
      * @param {number} dt
      * @param {ReturnType<import('./world.js').createWorld>} world
-     * @param {{sensitivity:number, invertY:boolean, shake:boolean, fast:boolean, danger:boolean}} o
+     * @param {{sensitivity:number, invertY:boolean, shake:boolean, fast:boolean, danger:boolean, water?:number|null}} o  water = surface height here (or null)
      */
     update(dt, world, o) {
       const m = input.consumeMouse();
@@ -96,7 +99,11 @@ export function createPlayer(camera) {
 
       // Crouch: held, or forced while something is just above (under a gate).
       const head = world.ray({ x: pos.x, y: pos.y + HEIGHT.crouch - .004, z: pos.z }, { x: 0, y: 1, z: 0 }, HEIGHT.stand - HEIGHT.crouch + .006, true);
-      p.crouched = !p.climbing && (input.isDown('crouch') || !!head);
+      const surface = o.water ?? null;
+      const wasSwimming = p.swimming;
+      p.swimming = surface != null && !p.climbing && pos.y < surface - .012;
+      if (p.swimming && !wasSwimming) { audio.play(vy < -1.5 ? 'splash' : 'splashSmall', { volume: vy < -1.5 ? .8 : .45 }); if (vy < -1.5) p.impulse = Math.max(p.impulse, 2); }
+      p.crouched = !p.climbing && !p.swimming && (input.isDown('crouch') || !!head);
       ch.setHeight(p.crouched ? HEIGHT.crouch : HEIGHT.stand);
       const h = ch.height;
 
@@ -107,7 +114,8 @@ export function createPlayer(camera) {
       };
       const canClimb = !p.carry && !p.exhausted && p.stamina > 2;
       if (!p.climbing && jumpHeld && canClimb && f >= 0 && wallAhead(pos.y + h * .5)) { p.climbing = true; vy = 0; vel.set(0, 0, 0); }
-      if (assistOff !== p.climbing) { ch.setGroundAssist(!p.climbing); assistOff = p.climbing; }
+      const noAssist = p.climbing || p.swimming;
+      if (assistOff !== noAssist) { ch.setGroundAssist(!noAssist); assistOff = noAssist; }
       let usedStamina = false;
 
       if (p.climbing) {
@@ -126,7 +134,26 @@ export function createPlayer(camera) {
         grounded = false;
       }
 
-      if (!p.climbing) {
+      if (!p.climbing && p.swimming) {
+        // ---- swimming: slow, splashy, drains stamina; at 0 stamina you drown
+        const fastSwim = input.isDown('sprint') && !p.carry && !p.exhausted && p.stamina > 0 && f > 0;
+        const speed = (p.carry ? SPEED.swimCarry : fastSwim ? SPEED.swimFast : SPEED.swim) * (o.fast ? 8 : 1);
+        const wish = new THREE.Vector3(Math.cos(yaw) * s + fx * f, 0, -Math.sin(yaw) * s + fz * f);
+        if (wish.lengthSq() > 1) wish.normalize();
+        vel.lerp(wish.multiplyScalar(speed), 1 - Math.exp(-dt * 4));
+        const target = surface - WATER.float;
+        vy += ((target - pos.y) * 30 - vy * 6) * dt;           // buoyancy spring, damped
+        const r = ch.move(vel.x * dt, vy * dt, vel.z * dt);
+        const moved = Math.hypot(r.moved.x, r.moved.z);
+        p.speed = moved / Math.max(dt, 1e-4);
+        p.stamina = Math.max(0, p.stamina - (STAMINA.swim + (fastSwim ? STAMINA.swimFast : 0)) * dt); usedStamina = true;
+        p.drowning = p.stamina <= 0;
+        if (p.drowning && !o.fast) { p.hp = Math.max(0, p.hp - WATER.drown * dt); sinceHurt = 0; if (p.hp <= 0) p.dead = true; }
+        stepAcc += moved; if (stepAcc > .09) { stepAcc = 0; audio.play('splashSmall', { volume: fastSwim ? .22 : .1, rate: 1.2 + Math.random() * .4 }); }
+        grounded = false;
+      } else p.drowning = false;
+
+      if (!p.climbing && !p.swimming) {
         // Sprint uses stamina; exhaustion blocks sprint until recovered.
         p.sprinting = input.isDown('sprint') && !p.crouched && !p.carry && f > 0 && !p.exhausted && p.stamina > 0 && grounded;
         if (p.sprinting) { p.stamina = Math.max(0, p.stamina - STAMINA.sprint * dt); usedStamina = true; }
@@ -177,7 +204,7 @@ export function createPlayer(camera) {
 
       // ---- noise (radius in metres) for cats
       p.moving = Math.min(1, p.speed / SPEED.walk);
-      p.noise = p.climbing ? .35 : p.speed < .05 ? 0 : p.sprinting ? 2.4 : p.crouched ? .25 : .9;
+      p.noise = p.climbing ? .35 : p.speed < .05 ? 0 : p.swimming ? (p.speed > .4 ? 1.6 : .7) : p.sprinting ? 2.4 : p.crouched ? .25 : .9;
       if (p.carry && p.speed > .05) p.noise = p.noise * 1.4 + .4;
 
       const targetEye = p.crouched ? EYE.crouch : EYE.stand;
@@ -192,7 +219,8 @@ export function createPlayer(camera) {
     /** Apply position/rotation to the camera with optional head bob. */
     place(moving, shake) {
       const k = shake ? Math.min(1, moving) : 0;
-      const hurt = invuln > .5 ? (invuln - .5) * .08 : 0;
+      jolt = Math.max(0, jolt - 1 / 60);
+      const hurt = (invuln > .5 ? (invuln - .5) * .08 : 0) + jolt * .06;
       camera.position.set(p.pos.x, p.pos.y + eye + Math.abs(Math.sin(bobT)) * .005 * k, p.pos.z);
       camera.rotation.set(pitch + Math.sin(bobT * 2) * .005 * k + (p.climbing ? -.05 : 0), yaw + hurt * Math.sin(performance.now() * .05), Math.sin(bobT) * .008 * k + hurt);
       held.position.set(Math.sin(bobT) * .002 * k, Math.abs(Math.sin(bobT)) * .002 * k, 0);

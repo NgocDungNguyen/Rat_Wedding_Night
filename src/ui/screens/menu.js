@@ -30,7 +30,7 @@ export default function menu() {
           button(t('menu.settings'), () => screens.push('settings', { from: 'menu' }), { fid: 'settings' }),
           button(t('menu.credits'), () => screens.push('credits'), { fid: 'credits' }),
           button(t('menu.quit'), () => screens.go('farewell'), { fid: 'quit' })),
-        h('div', { class: 'foot', text: 'v0.1 · Chương 1–2' }));
+        h('div', { class: 'foot', text: 'v0.2 · Chương 1–3' }));
     },
     enter() {
       game.setMode('attract');

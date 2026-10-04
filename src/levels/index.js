@@ -2,10 +2,11 @@
 import * as THREE from 'three';
 import ch1 from './ch1.js';
 import ch2 from './ch2.js';
+import ch3 from './ch3.js';
 
 const T = (vi, en) => ({ vi, en });
 
-/** TODO: chapters 3–6. A small empty yard so the flow can still be tested (F8 completes). */
+/** TODO: chapters 4–6. A small empty yard so the flow can still be tested (F8 completes). */
 const placeholder = {
   id: 'placeholder',
   build(k, api) {
@@ -24,4 +25,4 @@ const placeholder = {
   },
 };
 
-export const LEVELS = { ch1, ch2, placeholder };
+export const LEVELS = { ch1, ch2, ch3, placeholder };

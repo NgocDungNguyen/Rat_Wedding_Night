@@ -6,11 +6,12 @@ import { settings } from './settings.js';
 export const SOUNDS = {
   click: 'sfx/click.ogg', thud: 'sfx/thud.ogg', bell: 'sfx/templebell.ogg', gong: 'sfx/gongbell.ogg',
   rooster: 'sfx/rooster.ogg', wind: 'sfx/wind.ogg', gecko: 'sfx/gecko.ogg', doghowl: 'sfx/doghowl.ogg',
-  breath: 'sfx/breath2.ogg',
+  breath: 'sfx/breath2.ogg', chime: 'sfx/chime1.ogg',
   menuMusic: 'music-game/menu_placeholder.ogg', // TODO: real menu theme (this is the trailer mix)
   // Game sounds (Wikimedia Commons, see src/data/sfx-game-credits.json)
   catHiss: 'sfx-game/cat_hiss.ogg', catMeow: 'sfx-game/cat_meow.ogg', catPlead: 'sfx-game/cat_plead.ogg',
   catPurr: 'sfx-game/cat_purr.ogg', catGrowl: 'sfx-game/cat_growl.ogg', heartbeat: 'sfx-game/heartbeat.ogg',
+  splash: 'sfx-game/splash.ogg', splashSmall: 'sfx-game/splash_small.ogg', heron: 'sfx-game/heron.ogg', frogs: 'sfx-game/frogs.ogg',
   chase: 'music-game/chase_placeholder.ogg',          // TODO: real chase score
   weddingFar: 'music-game/wedding_far_placeholder.ogg', // TODO: real distant wedding tune
 };

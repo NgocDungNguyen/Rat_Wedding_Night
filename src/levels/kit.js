@@ -187,6 +187,40 @@ export function createKit(scene, world) {
     shadow(x, z, hx, hz, y = 0) { return world.addZone({ tag: 'shadow', x, z, hx, hz, y0: y - .05, y1: y + .5 }); },
     safe(x, z, r, hz) { return hz != null ? world.addZone({ tag: 'safe', x, z, hx: r, hz }) : world.addZone({ tag: 'safe', x, z, r }); },
 
+    // ------------------------------------------------------------ water
+    /** Mud floor slab: top at y (below water). */
+    mud(cx, cz, w, d, top = -.25) {
+      const m = new THREE.Mesh(boxGeo(w, .2, d, M.dirt.userData.tile), std({ map: T.dirt, color: 0x5a4a38 })); m.position.set(cx, top - .1, cz); add(m, false);
+      world.addBox({ x: cx, y: top - .2, z: cz, w, h: .2, d, climb: false });
+    },
+    /** Paddy / channel water: a water zone (swimming) with surface height. */
+    water(x0, z0, x1, z1, surface = 0, tag = 'paddy') {
+      return world.addZone({ tag: 'water', id: tag, x: (x0 + x1) / 2, z: (z0 + z1) / 2, hx: Math.abs(x1 - x0) / 2, hz: Math.abs(z1 - z0) / 2, y0: -2, y1: surface + .05, data: { surface } });
+    },
+    /** One big water surface plane (visual). Returns the material (animate its normal map offset). */
+    waterPlane(cx, cz, w, d, y = 0) {
+      const mat = new THREE.MeshStandardMaterial({ color: 0x24404e, roughness: .14, metalness: .15, transparent: true, opacity: .9 });
+      const nm = L.waterNormalTex(); nm.repeat.set(w * 1.5, d * 1.5); mat.normalMap = nm; mat.normalScale.set(.35, .35);
+      const m = new THREE.Mesh(new THREE.PlaneGeometry(w, d), mat); m.rotation.x = -PI / 2; m.position.set(cx, y, cz); m.receiveShadow = true; scene.add(m);
+      return mat;
+    },
+    /** Rice plants standing in water (box area). Optionally a hide zone. */
+    rice(x, z, hx, hz, h = .5, density = 3, hide = true, waterY = 0) {
+      const n = Math.max(4, Math.floor(hx * hz * 4 * density));
+      const geo = new THREE.PlaneGeometry(.16, h); geo.translate(0, h / 2, 0);
+      const mat = new THREE.MeshLambertMaterial({ map: T.blade, alphaTest: .4, side: THREE.DoubleSide, color: 0x9ab070 });
+      const mesh = new THREE.InstancedMesh(geo, mat, n * 3); const o = new THREE.Object3D();
+      let i = 0;
+      for (let k = 0; k < n; k++) {
+        const px = x + (Math.random() * 2 - 1) * hx, pz = z + (Math.random() * 2 - 1) * hz;
+        for (let j = 0; j < 3; j++) { o.position.set(px, waterY - .02, pz); o.rotation.set((Math.random() - .5) * .2, j * PI / 3 + Math.random() * .5, (Math.random() - .5) * .2);
+          const sc = .7 + Math.random() * .5; o.scale.set(sc, sc, sc); o.updateMatrix(); mesh.setMatrixAt(i++, o.matrix); }
+      }
+      mesh.castShadow = true; scene.add(mesh);
+      if (hide) world.addZone({ tag: 'hide', x, z, hx, hz, y0: -2, y1: waterY + h * .5, data: { needCrouch: false } });
+      return mesh;
+    },
+
     // ------------------------------------------------------------ props
     /** Glazed water jar (chum): slippery, not climbable. */
     jar(x, z, r = .28, h = .62) {

@@ -4,7 +4,7 @@ A first-person horror web game inspired by the Đông Hồ folk print *Đám cư
 You play a servant mouse sent to steal tributes for the cats on the nights of Tết.
 
 **▶ Play:** https://ngocdungnguyen.github.io/Rat_Wedding_Night/
-Desktop only: Chrome or Edge, keyboard + mouse. Chapters 1–2 are playable.
+Desktop only: Chrome or Edge, keyboard + mouse. Chapters 1–3 are playable.
 
 ## Controls
 

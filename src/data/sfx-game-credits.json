@@ -40,5 +40,26 @@
   "license": "CC BY 4.0",
   "artist": "Bob Smaude",
   "page": "https://commons.wikimedia.org/wiki/File:Heartbeat_speedsup.wav"
+ },
+ {
+  "name": "splash",
+  "title": "File:Bathtub water splashes.ogg",
+  "license": "Public domain",
+  "artist": "gradha",
+  "page": "https://commons.wikimedia.org/wiki/File%3ABathtub_water_splashes.ogg"
+ },
+ {
+  "name": "heron",
+  "title": "File:Grey heron call recorded in January 2023 at Sangli.wav",
+  "license": "CC BY-SA 4.0",
+  "artist": "Sharadapte",
+  "page": "https://commons.wikimedia.org/wiki/File%3AGrey_heron_call_recorded_in_January_2023_at_Sangli.wav"
+ },
+ {
+  "name": "frogs",
+  "title": "File:Frogs croak calling chorus at night.ogg",
+  "license": "CC BY-SA 4.0",
+  "artist": "JogiAsad",
+  "page": "https://commons.wikimedia.org/wiki/File%3AFrogs_croak_calling_chorus_at_night.ogg"
  }
 ]

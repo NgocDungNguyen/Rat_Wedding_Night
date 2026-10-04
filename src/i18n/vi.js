@@ -34,7 +34,7 @@ export default {
   intro: { chapter: 'Chương {n}', objective: 'Nhiệm vụ', continue: 'Nhấn để bắt đầu', fromCheckpoint: 'Tiếp tục từ điểm lưu gần nhất.' },
   cut: { hint: 'Nhấn chuột / Space ▸   ·   Esc: bỏ qua' },
   hud: { clickToResume: 'Nhấn để tiếp tục', debug: 'F8: xong chương · F9: chết · F7: đi nhanh (thử nghiệm)', health: 'Máu', stamina: 'Sức',
-    hidden: 'Đang ẩn nấp', carrying: 'Đang mang gà', lanternOn: 'Đèn đang sáng', saved: 'Đã lưu', closeNote: 'E / Space để đóng' },
+    hidden: 'Đang ẩn nấp', carrying: 'Đang mang gà', carry: { chicken: 'Đang mang gà', fish: 'Đang mang cá' }, swimming: 'Đang bơi', drowning: 'Đuối nước!', lanternOn: 'Đèn đang sáng', saved: 'Đã lưu', closeNote: 'E / Space để đóng' },
   pause: { title: 'Tạm dừng', resume: 'Tiếp tục', settings: 'Cài đặt', checkpoint: 'Về điểm lưu gần nhất', restart: 'Chơi lại từ đầu chương', menu: 'Về menu chính' },
   complete: { title: 'Bình minh', sub: 'Đã qua đêm {night}', unlocked: 'Đã mở: {chapter}', next: 'Chương tiếp', menu: 'Về menu chính', end: 'Hết. TODO: phần kết' },
   over: { title: 'Gục ngã', sub: 'Đêm nuốt chửng ngươi.', retry: 'Thử lại', retryCp: 'Thử lại từ điểm lưu', menu: 'Về menu chính' },

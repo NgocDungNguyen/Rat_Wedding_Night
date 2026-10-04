@@ -49,7 +49,9 @@ export function hud({ id }) {
     const d = Math.min(1, H.detect);
     el.eye.style.setProperty('--open', String(H.chase ? 1 : d));
     el.eye.classList.toggle('chase', H.chase); el.eye.classList.toggle('hidden', d < .03 && !H.chase);
-    el.status.textContent = [H.hidden ? t('hud.hidden') : '', H.carry ? t('hud.carrying') : '', H.lantern ? t('hud.lanternOn') : ''].filter(Boolean).join(' · ');
+    el.status.textContent = [H.drowning ? t('hud.drowning') : H.swimming ? t('hud.swimming') : '', H.hidden ? t('hud.hidden') : '', H.carry ? t(`hud.carry.${H.carry}`) : '', H.lantern ? t('hud.lanternOn') : ''].filter(Boolean).join(' · ');
+    el.status.classList.toggle('danger', !!H.drowning);
+    el.water.style.opacity = H.drowning ? String(.55 + Math.sin(performance.now() / 200) * .15) : H.swimming ? '.22' : '0';
     el.vignette.style.opacity = String(H.hp < 30 ? .55 + Math.sin(performance.now() / 260) * .2 : 0);
   }
 
@@ -67,12 +69,13 @@ export function hud({ id }) {
       el.status = h('div', { class: 'status' });
       el.flash = h('div', { class: 'flash' });
       el.vignette = h('div', { class: 'low-hp' });
+      el.water = h('div', { class: 'water-tint' });
       el.note = h('div', { class: 'note-veil', hidden: !note, onclick: closeNote },
         h('div', { class: 'note-paper' }, h('p', { class: 'note-text', text: note ? tx(note) : '' }), h('div', { class: 'hint', text: t('hud.closeNote') })));
       el.fast = h('span', { class: 'fast' });
       el.subs = settings.get('subtitles') ? h('div', { class: 'subtitles' }) : h('div');
       const root = h('div', { class: 'hud' },
-        el.vignette, el.flash,
+        el.water, el.vignette, el.flash,
         h('div', { class: 'crosshair' }), el.prompt, el.eye, el.obj, el.toasts,
         h('div', { class: 'meters' }, el.status, el.hpBox, el.stBox),
         el.hint, el.subs,

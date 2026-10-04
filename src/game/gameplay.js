@@ -7,6 +7,8 @@ import { buildPlaceholderLevel } from './placeholderLevel.js';
 import { createPlayer } from './player.js';
 import { createWorld } from './world.js';
 import { createCat } from './cat.js';
+import { createHeron } from './heron.js';
+import { createWisp } from './wisp.js';
 import { createKit } from '../levels/kit.js';
 import { LEVELS } from '../levels/index.js';
 import { input, keyLabel } from '../core/input.js';
@@ -35,7 +37,7 @@ let curObjective = null, lastHint = null;
 let S = null;
 
 /** Live HUD values, read every frame by the HUD screen. */
-export const hud = { hp: 100, stamina: 100, exhausted: false, detect: 0, chase: false, prompt: '', carry: null, lantern: false, hidden: false, climbing: false };
+export const hud = { hp: 100, stamina: 100, exhausted: false, detect: 0, chase: false, prompt: '', carry: null, lantern: false, hidden: false, climbing: false, swimming: false, drowning: false };
 
 function applySettings() {
   const s = settings.all();
@@ -64,6 +66,8 @@ const api = {
   get flags() { return S.flags; },
   cat: (id) => S.cats.find(c => c.id === id),
   get cats() { return S.cats; },
+  get herons() { return S.herons; },
+  get wisps() { return S.wisps; },
   /** @param {{vi:string,en:string}} text */
   objective(text) { curObjective = text; em.emit('objective', text); },
   /** Tutorial / context hint; {action} names become key labels. */
@@ -76,7 +80,7 @@ const api = {
   interact(o) { const it = { r: .14, enabled: true, ...o, pos: o.pos.clone ? o.pos.clone() : new THREE.Vector3(...o.pos) }; S.interacts.push(it); return it; },
   removeInteract(id) { S.interacts = S.interacts.filter(i => i.id !== id); },
   /** A noise at p heard by cats within r. */
-  noise(p, r, loud = false) { S.cats.forEach(c => c.hear(p, r, loud)); },
+  noise(p, r, loud = false) { S.cats.forEach(c => c.hear(p, r, loud)); S.herons.forEach(h => h.hear(p, r)); },
   soundAt(name, p, o = {}) { return audio.playAt(name, p, R.camera, o); },
   sound(name, o = {}) { return audio.play(name, o); },
   inZone(tag, id) { const p = player.pos; return S.world.zonesAt(p.x, p.y + .02, p.z, tag).some(z => !id || z.id === id); },
@@ -87,7 +91,7 @@ const api = {
 // ------------------------------------------------------------------ session
 function disposeSession() {
   if (!S) return;
-  S.cats.forEach(c => c.dispose());
+  S.cats.forEach(c => c.dispose()); S.herons.forEach(h => h.dispose()); S.wisps.forEach(w => w.dispose());
   S.heart?.stop(.2);
   player.detach();
   S.level.dispose?.();
@@ -109,7 +113,7 @@ function buildSession(id, checkpointId) {
   const scene = new THREE.Scene();
   const world = createWorld();
   const kit = createKit(scene, world);
-  S = { scene, world, level: null, cats: [], interacts: [], flags: {}, prompt: null, chaseOff: 0, heart: null, over: false, shadowLights: [], music: null };
+  S = { scene, world, level: null, cats: [], herons: [], wisps: [], interacts: [], flags: {}, prompt: null, chaseOff: 0, heart: null, over: false, shadowLights: [], music: null };
   const cp = checkpointId ? save.get().checkpoint : null;
   if (cp?.flags) Object.assign(S.flags, cp.flags);
   const level = LEVELS[ch.level].build(kit, api);
@@ -118,6 +122,8 @@ function buildSession(id, checkpointId) {
   S.music = level.music ?? null;
   scene.add(R.camera);
   S.cats = (level.cats ?? []).map(cfg => createCat(scene, world, cfg));
+  S.herons = (level.herons ?? []).map(cfg => createHeron(scene, world, cfg));
+  S.wisps = (level.wisps ?? []).map(cfg => createWisp(scene, world, cfg));
   world.onImpact((p, loud, prop) => {
     // Hard things (ceramic, stone) carry further than soft ones (fruit, sandals).
     const hard = prop.sound === 'clack', r = Math.min(6, Math.max(.6, loud / (hard ? 3 : 6)));
@@ -140,8 +146,9 @@ function buildSession(id, checkpointId) {
 // ------------------------------------------------------------------ frame
 function updatePlay(dt) {
   const s = settings.all();
-  const danger = S.cats.some(c => c.state === 'chase' || c.state === 'suspicious');
-  player.update(dt, S.world, { sensitivity: s.sensitivity, invertY: s.invertY, shake: s.cameraShake, fast, danger });
+  const danger = S.cats.some(c => c.state === 'chase' || c.state === 'suspicious') || S.herons.some(h => h.state === 'alert' || h.state === 'strike');
+  const wz = S.world.zonesAt(player.pos.x, player.pos.y, player.pos.z, 'water')[0];
+  player.update(dt, S.world, { sensitivity: s.sensitivity, invertY: s.invertY, shake: s.cameraShake, fast, danger, water: wz ? wz.data?.surface ?? 0 : null });
   S.world.step(dt);
 
   // Exposure: light, crouch, lantern, hiding.
@@ -164,6 +171,12 @@ function updatePlay(dt) {
     }
     maxDetect = Math.max(maxDetect, c.detect); if (c.state === 'chase') chasing = true;
   }
+  for (const h of S.herons) {
+    const r = h.update(dt, { pos: p, speed: player.speed, hidden, swimming: player.swimming }, R.camera);
+    if (r?.type === 'attack') { player.damage(r.damage, r.from); em.emit('damage', r.damage); }
+    maxDetect = Math.max(maxDetect, h.detect);
+  }
+  for (const w of S.wisps) w.update(dt, player, R.camera);
   if (player.hurtRecently) {} // HUD flashes from 'damage'
   if (player.dead && !S.over) { S.over = true; game.flushPlaytime(); em.emit('dead', chapterId); return; }
 
@@ -189,6 +202,7 @@ function updatePlay(dt) {
   Object.assign(hud, {
     hp: player.hp, stamina: player.stamina, exhausted: player.exhausted, detect: maxDetect, chase: chasing,
     prompt: best ? `[${keyOf('interact')}] ${tx(best.label)}` : '', carry: player.carry, lantern: player.lanternOn, hidden, climbing: player.climbing,
+    swimming: player.swimming, drowning: player.drowning,
   });
 }
 

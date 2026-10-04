@@ -34,7 +34,7 @@ export default {
   intro: { chapter: 'Chapter {n}', objective: 'Objective', continue: 'Click to begin', fromCheckpoint: 'Continuing from the last checkpoint.' },
   cut: { hint: 'Click / Space ▸   ·   Esc: skip' },
   hud: { clickToResume: 'Click to resume', debug: 'F8: complete chapter · F9: die · F7: fast move (debug)', health: 'Health', stamina: 'Stamina',
-    hidden: 'Hidden', carrying: 'Carrying the chicken', lanternOn: 'Lantern on', saved: 'Checkpoint saved', closeNote: 'E / Space to close' },
+    hidden: 'Hidden', carrying: 'Carrying the chicken', carry: { chicken: 'Carrying the chicken', fish: 'Carrying the fish' }, swimming: 'Swimming', drowning: 'Drowning!', lanternOn: 'Lantern on', saved: 'Checkpoint saved', closeNote: 'E / Space to close' },
   pause: { title: 'Paused', resume: 'Resume', settings: 'Settings', checkpoint: 'Last checkpoint', restart: 'Restart chapter', menu: 'Main menu' },
   complete: { title: 'Dawn', sub: 'You survived {night}', unlocked: 'Unlocked: {chapter}', next: 'Next chapter', menu: 'Main menu', end: 'The end. TODO: ending' },
   over: { title: 'You fell', sub: 'The night swallows you.', retry: 'Retry', retryCp: 'Retry from checkpoint', menu: 'Main menu' },
