@@ -21,26 +21,34 @@ export function farewell() {
   };
 }
 
-/** Chapter intro: autosaves, then a click/key starts play (the click also grants pointer lock). */
-export function chapterIntro({ id }) {
+/**
+ * Chapter intro card. A click/key starts play (the gesture also grants pointer lock).
+ * Fresh start: autosave + intro cut-scene. resume: continue from the saved checkpoint.
+ */
+export function chapterIntro({ id, resume = false, skipCut = false }) {
   const ch = getChapter(id);
-  const begin = () => { input.lock(); game.start(id); screens.go('hud', { id }); };
+  const cp = resume ? save.checkpointFor(id) : null;
+  const play = () => { input.lock(); game.start(id, cp); screens.go('hud', { id }); };
+  const begin = () => {
+    if (cp || !ch.cutIn || skipCut) { play(); return; }
+    screens.go('cutscene', { key: ch.cutIn, onDone: play });
+  };
   return {
     render: () => h('div', { class: 'card', onclick: begin },
       h('div', { class: 'eyebrow', text: `${t('intro.chapter', { n: ch.id })} · ${tx(ch.night)}` }),
       h('h1', { class: 'big', text: tx(ch.title) }),
-      h('p', { class: 'line', text: tx(ch.intro) }),
+      cp ? h('p', { class: 'line', text: t('intro.fromCheckpoint') }) : h('p', { class: 'line', text: tx(ch.intro) }),
       h('p', { class: 'line', style: 'animation-delay:.9s' }, h('span', { class: 'hint', text: `${t('intro.objective')}: ` }), tx(ch.objective)),
       h('div', { class: 'bottom hint pulse', text: t('intro.continue') })),
     enter() {
-      save.startChapter(id);
+      if (!cp) save.startChapter(id);
       game.setMode('hidden');
       audio.music(null, { fade: 2 }); audio.ambience({ wind: .25 });
       audio.play('gong', { volume: .6 });
     },
     key(e) {
       if (e.code === 'Escape') { screens.go('menu'); return true; }
-      if (e.code === 'Enter' || e.code === 'Space') { begin(); return true; }
+      if (e.code === 'Enter' || e.code === 'Space') { e.preventDefault(); begin(); return true; }
     },
   };
 }
@@ -63,7 +71,7 @@ export function chapterComplete({ id }) {
   };
 }
 
-/** Caught. TODO (M2): triggered by Ông Mèo instead of the F9 debug key. */
+/** Health reached zero (cat claws, falls). Retry from the last checkpoint. */
 export function gameOver({ id }) {
   game.flushPlaytime();
   return {
@@ -71,7 +79,7 @@ export function gameOver({ id }) {
       h('h1', { class: 'big red-ink', text: t('over.title') }),
       h('p', { class: 'line', text: t('over.sub') }),
       h('div', { class: 'actions' },
-        button(t('over.retry'), () => screens.go('chapterIntro', { id }), { fid: 'retry', autofocus: true }),
+        button(t(save.checkpointFor(id) ? 'over.retryCp' : 'over.retry'), () => screens.go('chapterIntro', { id, resume: true, skipCut: true }), { fid: 'retry', autofocus: true }),
         button(t('over.menu'), () => screens.go('menu'), { fid: 'menu' }))),
     enter() {
       game.setMode('hidden'); audio.ambience({}, .5);

@@ -1,11 +1,11 @@
 // Default settings, key bindings and graphics presets.
 
 /** Rebindable actions, in the order shown in Settings. Pause (Esc) is fixed. */
-export const ACTIONS = ['forward', 'back', 'left', 'right', 'sprint', 'crouch', 'interact', 'lantern'];
+export const ACTIONS = ['forward', 'back', 'left', 'right', 'jump', 'sprint', 'crouch', 'interact', 'lantern'];
 
 /** KeyboardEvent.code values. */
 export const DEFAULT_KEYS = {
-  forward: 'KeyW', back: 'KeyS', left: 'KeyA', right: 'KeyD',
+  forward: 'KeyW', back: 'KeyS', left: 'KeyA', right: 'KeyD', jump: 'Space',
   sprint: 'ShiftLeft', crouch: 'KeyC', interact: 'KeyE', lantern: 'KeyF',
 };
 

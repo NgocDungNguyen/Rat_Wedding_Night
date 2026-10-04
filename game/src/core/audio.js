@@ -6,7 +6,13 @@ import { settings } from './settings.js';
 export const SOUNDS = {
   click: 'sfx/click.ogg', thud: 'sfx/thud.ogg', bell: 'sfx/templebell.ogg', gong: 'sfx/gongbell.ogg',
   rooster: 'sfx/rooster.ogg', wind: 'sfx/wind.ogg', gecko: 'sfx/gecko.ogg', doghowl: 'sfx/doghowl.ogg',
+  breath: 'sfx/breath2.ogg',
   menuMusic: 'music/menu_placeholder.flac', // TODO: real menu theme (this is the trailer mix)
+  // Game sounds (Wikimedia Commons, see src/data/sfx-game-credits.json)
+  catHiss: 'sfx-game/cat_hiss.ogg', catMeow: 'sfx-game/cat_meow.ogg', catPlead: 'sfx-game/cat_plead.ogg',
+  catPurr: 'sfx-game/cat_purr.ogg', catGrowl: 'sfx-game/cat_growl.ogg', heartbeat: 'sfx-game/heartbeat.ogg',
+  chase: 'music-game/chase_placeholder.ogg',          // TODO: real chase score
+  weddingFar: 'music-game/wedding_far_placeholder.ogg', // TODO: real distant wedding tune
 };
 
 /** @type {AudioContext} */ let ctx;
@@ -15,6 +21,7 @@ const bus = /** @type {Record<'master'|'music'|'voice'|'ui'|'sfx'|'ambience'|'ga
 /** @type {Map<string, AudioBuffer>} */ const buffers = new Map();
 let music = /** @type {{name:string, src:AudioBufferSourceNode, gain:GainNode}|null} */ (null);
 /** @type {Map<string, {src:AudioBufferSourceNode, gain:GainNode}>} */ const ambience = new Map();
+/** @type {AudioBuffer|null} */ let patterBuf = null;
 
 const curve = (v) => Math.pow(Math.max(0, Math.min(100, v)) / 100, 2);
 
@@ -64,12 +71,48 @@ export const audio = {
   play(name, o = {}) {
     const buf = buffers.get(name);
     if (!ctx || !buf) return null;
-    const src = ctx.createBufferSource(), gain = ctx.createGain();
+    const src = ctx.createBufferSource(), gain = ctx.createGain(), pan = ctx.createStereoPanner();
     src.buffer = buf; src.loop = !!o.loop; src.playbackRate.value = o.rate ?? 1;
-    gain.gain.value = o.volume ?? 1;
-    src.connect(gain).connect(bus[o.bus ?? 'sfx']);
-    src.start(0, o.offset ?? 0);
-    return { src, gain, stop: (fade = .3) => fadeStop({ src, gain }, fade) };
+    gain.gain.value = o.volume ?? 1; pan.pan.value = o.pan ?? 0;
+    src.connect(gain).connect(pan).connect(bus[o.bus ?? 'sfx']);
+    src.start(0, (o.offset ?? 0) % buf.duration);
+    const h = {
+      src, gain,
+      stop: (fade = .3) => fadeStop({ src, gain }, fade),
+      /** Smoothly set volume and stereo pan (for positional loops). */
+      set(volume, p = 0) { gain.gain.setTargetAtTime(volume, ctx.currentTime, .05); pan.pan.setTargetAtTime(Math.max(-1, Math.min(1, p)), ctx.currentTime, .05); },
+    };
+    return h;
+  },
+
+  /** Volume and pan of a sound at world position `p` heard from camera `cam`. */
+  spatial(p, cam, maxDist = 10) {
+    if (!cam) return { volume: .5, pan: 0 };
+    const dx = p.x - cam.position.x, dz = p.z - cam.position.z, d = Math.hypot(dx, dz, (p.y ?? 0) - cam.position.y);
+    const k = Math.max(0, 1 - d / maxDist);
+    const yaw = cam.rotation.y, rx = Math.cos(yaw), rz = -Math.sin(yaw); // camera right vector
+    return { volume: k * k, pan: d > 1e-4 ? (dx * rx + dz * rz) / d * .8 : 0 };
+  },
+  /** One-shot at a world position. */
+  playAt(name, p, cam, o = {}) {
+    const s = audio.spatial(p, cam, o.maxDist ?? 10);
+    if (s.volume < .002) return null;
+    return audio.play(name, { ...o, volume: (o.volume ?? 1) * s.volume, pan: s.pan });
+  },
+
+  /** Tiny synthesised footstep patter (mouse feet). */
+  patter(volume = .2, bright = 1) {
+    if (!ctx || ctx.state !== 'running') return;
+    if (!patterBuf) {
+      patterBuf = ctx.createBuffer(1, Math.floor(ctx.sampleRate * .03), ctx.sampleRate);
+      const d = patterBuf.getChannelData(0);
+      for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * Math.exp(-i / (d.length * .18));
+    }
+    const src = ctx.createBufferSource(), f = ctx.createBiquadFilter(), g = ctx.createGain();
+    src.buffer = patterBuf; src.playbackRate.value = .8 + Math.random() * .5;
+    f.type = 'bandpass'; f.frequency.value = 1800 * bright + Math.random() * 900; f.Q.value = 1.2;
+    g.gain.value = volume;
+    src.connect(f).connect(g).connect(bus.sfx); src.start();
   },
   ui(name = 'click', volume = .5, rate = 1) { return audio.play(name, { bus: 'ui', volume, rate }); },
 

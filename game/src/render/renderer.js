@@ -23,7 +23,7 @@ export function createRenderer(container) {
   camera.rotation.order = 'YXZ'; scene.add(camera);
 
   const composer = new EffectComposer(renderer);
-  composer.addPass(new RenderPass(scene, camera));
+  const renderPass = new RenderPass(scene, camera); composer.addPass(renderPass);
   const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), .5, .45, .9); composer.addPass(bloom);
   const after = new AfterimagePass(.55); composer.addPass(after);
   composer.addPass(new OutputPass());
@@ -58,5 +58,7 @@ export function createRenderer(container) {
     setBrightness(b) { grade.uniforms.uGamma.value = b; renderer.toneMappingExposure = 1.05 * (.75 + .25 * b); },
     setMotionBlur(on) { after.enabled = on; },
     render(t) { grade.uniforms.uT.value = t; composer.render(); },
+    /** Render a different scene (chapter levels) with the same camera and post chain. */
+    setScene(s) { renderPass.scene = s; after.uniforms.damp.value = 0; requestAnimationFrame(() => { after.uniforms.damp.value = .55; }); },
   };
 }

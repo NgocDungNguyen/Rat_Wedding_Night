@@ -22,7 +22,7 @@ export default function menu() {
       return h('div', { class: 'menu' },
         title(t('title'), t('subtitle')),
         h('nav', {},
-          button(t('menu.continue'), () => screens.go('chapterIntro', { id: cur.id }), {
+          button(t('menu.continue'), () => screens.go('chapterIntro', { id: cur.id, resume: true }), {
             fid: 'continue', disabled: !has, autofocus: has,
             sub: has ? t('menu.lastPlayed', { chapter: `${t('chapters.chapter', { n: cur.id })} · ${tx(cur.title)}` }) : undefined }),
           button(t('menu.newGame'), newGame, { fid: 'new', autofocus: !has }),
@@ -30,7 +30,7 @@ export default function menu() {
           button(t('menu.settings'), () => screens.push('settings', { from: 'menu' }), { fid: 'settings' }),
           button(t('menu.credits'), () => screens.push('credits'), { fid: 'credits' }),
           button(t('menu.quit'), () => screens.go('farewell'), { fid: 'quit' })),
-        h('div', { class: 'foot', text: 'Phase 0 · shell · v0.0.1' }));
+        h('div', { class: 'foot', text: 'v0.1 · Chương 1–2' }));
     },
     enter() {
       game.setMode('attract');

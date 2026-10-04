@@ -38,9 +38,14 @@ export const save = {
     const next = CHAPTERS.find(c => c.requires === id);
     if (next && !data.unlocked.includes(next.id)) data.unlocked.push(next.id);
     if (next) data.currentChapter = next.id;
+    data.checkpoint = null;
     persist();
     return next ? next.id : null;
   },
+  /** Mid-chapter checkpoint (id + level flags). */
+  setCheckpoint(chapter, id, flags = {}) { if (!data) data = fresh(); data.currentChapter = chapter; data.checkpoint = { chapter, id, flags }; persist(); },
+  /** Checkpoint id for a chapter, or null. */
+  checkpointFor(chapter) { return data?.checkpoint?.chapter === chapter ? data.checkpoint.id : null; },
   addPlaytime(sec) { if (data && sec > 0) { data.playtime += sec; persist(); } },
   meta: {
     get: (k) => meta[k],
