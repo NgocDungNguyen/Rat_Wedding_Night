@@ -1,0 +1,44 @@
+[
+ {
+  "name": "cat_hiss",
+  "title": "File:Cat hissing - Zabuhailo.wav",
+  "license": "CC0",
+  "artist": "Zabuhailo",
+  "page": "https://commons.wikimedia.org/wiki/File:Cat_hissing_-_Zabuhailo.wav"
+ },
+ {
+  "name": "cat_meow",
+  "title": "File:Meow of a Siamese cat - freemaster2.wav",
+  "license": "CC0",
+  "artist": "freemaster2",
+  "page": "https://commons.wikimedia.org/wiki/File:Meow_of_a_Siamese_cat_-_freemaster2.wav"
+ },
+ {
+  "name": "cat_plead",
+  "title": "File:Meow of a pleading cat.oga",
+  "license": "Public domain",
+  "artist": "Heismark",
+  "page": "https://commons.wikimedia.org/wiki/File:Meow_of_a_pleading_cat.oga"
+ },
+ {
+  "name": "cat_purr",
+  "title": "File:Purring cat.oga",
+  "license": "Public domain",
+  "artist": "Mysid",
+  "page": "https://commons.wikimedia.org/wiki/File:Purring_cat.oga"
+ },
+ {
+  "name": "cat_growl",
+  "title": "File:Gruñido gato (Chacha).ogg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Luisalvaz",
+  "page": "https://commons.wikimedia.org/wiki/File:Gru%C3%B1ido_gato_(Chacha).ogg"
+ },
+ {
+  "name": "heartbeat",
+  "title": "File:Heartbeat speedsup.wav",
+  "license": "CC BY 4.0",
+  "artist": "Bob Smaude",
+  "page": "https://commons.wikimedia.org/wiki/File:Heartbeat_speedsup.wav"
+ }
+]

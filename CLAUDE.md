@@ -25,6 +25,7 @@ Handoff from a previous Claude (Cowork) session, so a new session can continue w
 | 2026-10-04 | Placeholder gameplay level = trailer village (`buildWorld()`) at mouse scale                               |
 | 2026-10-04 | Language picker on first boot (vi/en); Quit = "Hẹn gặp lại" farewell screen (web can't close the tab)    |
 | 2026-10-04 | Save: localStorage keys `lcc.settings.v1`, `lcc.save.v1`, `lcc.meta.v1`; one autosave slot + Continue      |
+| 2026-10-04 | Ch1+Ch2 build: Ch2 tribute = boiled chicken from the Tết altar; Ch1 = tutorial + one cat scout; new area per chapter; cut-scenes = text + Đông Hồ-style stills. Design: `docs/CHAPTERS_1_2.md` |
 | 2026-10-04 | Rules: build no gameplay, AI, levels or cut-scenes until Albert asks. Commit after each working step       |
 
 ### Game shell (Phase 0B, done 2026-10-04)
