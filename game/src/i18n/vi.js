@@ -1,0 +1,39 @@
+// Tiếng Việt UI strings. TODO: placeholder copy, review with Albert.
+export default {
+  title: 'Đám cưới Làng Chuột',
+  subtitle: 'Rat Village Wedding',
+  boot: { loading: 'Đang tải', fonts: 'Phông chữ', world: 'Dựng làng', sound: 'Âm thanh', start: 'Nhấn để bắt đầu' },
+  opening: {
+    studio: 'TODO · Tên studio', presents: 'giới thiệu',
+    line: 'Mỗi năm, làng chuột phải dâng lễ cho mèo để đám cưới được yên.',
+    skip: 'Nhấn phím bất kỳ để bỏ qua',
+  },
+  menu: {
+    newGame: 'Trò chơi mới', continue: 'Tiếp tục', chapters: 'Chọn chương', settings: 'Cài đặt', credits: 'Ghi công', quit: 'Thoát',
+    confirmTitle: 'Bắt đầu lại?', confirmBody: 'Tiến trình đã lưu sẽ bị xoá.', yes: 'Đồng ý', no: 'Huỷ',
+    lastPlayed: 'Đang ở: {chapter}',
+  },
+  chapters: { title: 'Các chương', locked: 'Chưa mở', completed: 'Đã xong', chapter: 'Chương {n}' },
+  settings: {
+    title: 'Cài đặt', reset: 'Khôi phục mặc định', back: 'Quay lại', on: 'Bật', off: 'Tắt',
+    tabs: { graphics: 'Đồ hoạ', controls: 'Điều khiển', audio: 'Âm thanh', access: 'Ngôn ngữ & hỗ trợ' },
+    quality: 'Chất lượng', qualityLow: 'Thấp', qualityMedium: 'Vừa', qualityHigh: 'Cao',
+    resScale: 'Độ phân giải', brightness: 'Độ sáng', calib: 'Chỉnh đến khi biểu tượng vừa đủ thấy',
+    fov: 'Góc nhìn (FOV)', motionBlur: 'Nhoè chuyển động', cameraShake: 'Rung máy quay',
+    sensitivity: 'Độ nhạy chuột', invertY: 'Đảo trục dọc', keys: 'Phím', pressKey: 'Nhấn một phím…', escFixed: 'Esc: Tạm dừng (cố định)',
+    volMaster: 'Âm lượng tổng', volMusic: 'Nhạc', volSfx: 'Hiệu ứng', volVoice: 'Lồng tiếng',
+    subtitles: 'Phụ đề', language: 'Ngôn ngữ',
+  },
+  actions: { forward: 'Tiến', back: 'Lùi', left: 'Trái', right: 'Phải', sprint: 'Chạy', crouch: 'Cúi', interact: 'Tương tác', lantern: 'Đèn lồng' },
+  credits: {
+    title: 'Ghi công', design: 'Thiết kế & phát triển', designBy: 'Albert · TODO tên studio',
+    inspired: 'Cảm hứng', inspiredBy: 'Tranh dân gian Đông Hồ “Đám cưới chuột”',
+    tech: 'Công nghệ', fonts: 'Phông chữ', sounds: 'Âm thanh (Wikimedia Commons)', music: 'Nhạc', musicBy: 'TODO · Nhạc tạm lấy từ trailer',
+  },
+  farewell: { title: 'Hẹn gặp lại', sub: 'Đèn đã tắt. Làng lại im lặng.', click: 'Nhấn để quay lại' },
+  intro: { chapter: 'Chương {n}', objective: 'Nhiệm vụ', continue: 'Nhấn để bắt đầu' },
+  hud: { clickToResume: 'Nhấn để tiếp tục', debug: 'F8: xong chương · F9: thua · F7: đi nhanh (thử nghiệm)' },
+  pause: { title: 'Tạm dừng', resume: 'Tiếp tục', settings: 'Cài đặt', restart: 'Chơi lại chương', menu: 'Về menu chính' },
+  complete: { title: 'Bình minh', sub: 'Đã qua đêm {night}', unlocked: 'Đã mở: {chapter}', next: 'Chương tiếp', menu: 'Về menu chính', end: 'Hết. TODO: phần kết' },
+  over: { title: 'Bị bắt', sub: 'Đêm nuốt chửng ngươi.', retry: 'Thử lại', menu: 'Về menu chính' },
+};
